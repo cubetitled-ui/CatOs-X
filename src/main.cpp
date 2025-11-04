@@ -1,4 +1,4 @@
-#define FIRMWARE_VERSION "v0.1.5R"
+#define FIRMWARE_VERSION "v0.1.6R"
 // настройка дисплея
 #define RES 17
 #define DC 16
@@ -4084,6 +4084,234 @@ void miniDoomGame() {
     delay(30); 
   }
 }
+void rouletteGame() {
+    const uint8_t* symbols[] = {
+        chest_26x26,    // 0 - сундук (15%)
+        dimond_26x26,   // 1 - алмаз (7%)  
+        apple_26x26,    // 2 - яблоко (25%)
+        chery_26x26,    // 3 - вишня (30%)
+        strawbery_26x26,// 4 - клубника (20%)
+        seven_26x26     // 5 - семерка (3%)
+    };
+    
+    // вероятность выпадения
+    const uint8_t probabilities[] = {15, 7, 25, 30, 20, 3};
+    
+    uint8_t reels[3] = {0, 0, 0};
+    uint8_t finalReels[3] = {0, 0, 0}; 
+    bool spinning[3] = {false, false, false};
+    uint32_t spinStartTime = 0;
+    uint32_t lastReelUpdate = 0;
+    bool isSpinning = false;
+    bool hasWon = false;
+    uint8_t reelsStopped = 0;
+    bool showResult = false;
+    
+
+    const int16_t reelX[3] = {5, 46, 87};
+    const int16_t reelY = 15;
+    const int16_t reelWidth = 26;
+    const int16_t reelHeight = 26;
+    
+    resetButtons();
+    
+
+    auto weightedRandom = [&]() -> uint8_t {
+        int total = 100;
+        int r = random(0, total);
+        int cumulative = 0;
+        
+        for (int i = 0; i < 6; i++) {
+            cumulative += probabilities[i];
+            if (r < cumulative) {
+                return i;
+            }
+        }
+        return 5; 
+    };
+    
+
+    auto drawReel = [&](uint8_t reelIndex, uint8_t symbol) {
+        oled.clear(reelX[reelIndex], reelY, reelX[reelIndex] + reelWidth - 1, reelY + reelHeight - 1);
+        oled.drawBitmap(reelX[reelIndex], reelY, symbols[symbol], reelWidth, reelHeight);
+    };
+    
+    auto drawStaticUI = [&]() {
+        oled.clear();
+        ui_rama("РУЛЕТКА", true, true, false);
+        oled.line(42, 12, 42, 50);
+        oled.line(83, 12, 83, 50);
+
+        for (int i = 0; i < 3; i++) {
+            oled.roundRect(reelX[i]-2, reelY-2, reelX[i]+28, reelY+28, OLED_STROKE);
+        }
+        
+        for (int i = 0; i < 3; i++) {
+            drawReel(i, reels[i]);
+        }
+        
+
+        oled.setCursor(0, 7);
+        if (showResult) {
+            if (hasWon) {
+                oled.print("ДЖЕКПОТ! OK-еще");
+            } else {
+                oled.print("OK-еще         ");
+            }
+        } else {
+            oled.print("OK-крутить Удр-выход");
+        }
+        oled.update();
+    };
+    
+    auto updateStatus = [&]() {
+        oled.clear(0, 56, 127, 63);
+        oled.setCursor(0, 7);
+        if (showResult) {
+            if (hasWon) {
+                oled.print("ДЖЕКПОТ! OK-еще");
+            } else {
+                oled.print("Готово! OK-еще   ");
+            }
+        } else if (isSpinning) {
+            oled.print("Крутим...        ");
+        } else {
+            oled.print("OK-крутить Удр-выход");
+        }
+    };
+    
+    auto startSpin = [&]() {
+        isSpinning = true;
+        showResult = false;
+        hasWon = false;
+        reelsStopped = 0;
+        spinStartTime = millis();
+        lastReelUpdate = millis();
+        
+        for (int i = 0; i < 3; i++) {
+            finalReels[i] = weightedRandom();
+            spinning[i] = true;
+        }
+        
+
+        
+        updateStatus();
+        oled.update();
+    };
+    
+
+    auto updateSpin = [&]() {
+        uint32_t currentTime = millis();
+        uint32_t spinTime = currentTime - spinStartTime;
+        
+        if (currentTime - lastReelUpdate > 80) {
+            for (int i = 0; i < 3; i++) {
+                if (spinning[i]) {
+                    reels[i] = random(0, 6);
+                    drawReel(i, reels[i]);
+                }
+            }
+            oled.update(); 
+            lastReelUpdate = currentTime;
+        }
+        
+
+        if (spinTime > 1500 && spinning[0]) {
+            spinning[0] = false;
+            reels[0] = finalReels[0];
+            drawReel(0, reels[0]);
+            reelsStopped++;
+            oled.update();
+        }
+        if (spinTime > 2000 && spinning[1]) {
+            spinning[1] = false;
+            reels[1] = finalReels[1];
+            drawReel(1, reels[1]);
+            reelsStopped++;
+            oled.update();
+        }
+        if (spinTime > 2500 && spinning[2]) {
+            spinning[2] = false;
+            reels[2] = finalReels[2];
+            drawReel(2, reels[2]);
+            reelsStopped++;
+            oled.update();
+        }
+        
+        if (reelsStopped >= 3) {
+            isSpinning = false;
+            showResult = true;
+            hasWon = (finalReels[0] == 5 && finalReels[1] == 5 && finalReels[2] == 5);
+        }
+    };
+    
+    auto showWinAnimation = [&]() {
+        unsigned long animationStart = millis();
+        unsigned long lastBlink = animationStart;
+        bool inverted = false;
+        uint8_t blinkCount = 0;
+        
+        while (blinkCount < 6) { 
+            buttons_tick();
+            
+            if (millis() - lastBlink > 400) {
+                inverted = !inverted;
+                lastBlink = millis();
+                blinkCount++;
+                
+                oled.invertDisplay(inverted);
+                oled.update();
+            }
+            
+            if (ok.isClick() || ok.isHold()) {
+                break;
+            }
+            delay(50);
+        }
+        oled.invertDisplay(false);
+        oled.update();
+    };
+    
+    drawStaticUI();
+    
+    while (true) {
+        buttons_tick();
+        
+        if (ok.isHold()) {
+            exit();
+            return;
+        }
+        
+        if (isSpinning) {
+            updateSpin();
+            
+            if (!isSpinning && showResult) {
+                updateStatus();
+                oled.update();
+                
+                if (hasWon) {
+                    showWinAnimation();
+                    showResult = true;
+                    updateStatus();
+                    oled.update();
+                }
+            }
+            
+        } else {
+            if (ok.isClick()) {
+                if (showResult) {
+                    showResult = false;
+                    startSpin();
+                } else {
+                    startSpin();
+                }
+            }
+        }
+        
+        delay(30);
+    }
+}
+
 void mini_apps_menu() {
   setCpuFrequencyMhz(240);
   const char* mini_apps_pages[][6] = {
@@ -4100,7 +4328,7 @@ void mini_apps_menu() {
       "Арконоид",
       "Space Invaders",
       "Mini 3d graphics",
-      "",
+      "Рулетка",
       "<- Пред.стр"
     }
   };
@@ -4180,7 +4408,7 @@ void mini_apps_menu() {
           case 1: arkanoidGame(); break;
           case 2: spaceInvadersGame(); break;
           case 3: miniDoomGame(); break;
-          case 4: break;
+          case 4: rouletteGame(); break;
           case 5: current_page--; mini_apps_ptr = 0; break;
         }
       }
