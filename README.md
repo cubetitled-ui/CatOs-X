@@ -96,6 +96,7 @@ pio run --target upload
 - Спасибо проекту [MicroReader](https://github.com/Nich1con/microReader/) за некоторые функции и игры.
 - Спасибо [x4m](https://github.com/x4m) в [pull request](https://github.com/Nich1con/microReader/pull/11) за новый калькулятор
 - Спасибо VoltimeterXPayalnuk за игру Space Invaders (для i2c).
+- Спасибо HakerShark за иконки.
 ## Star History
 
 <a href="https://www.star-history.com/#CatDevCode/CatOs&Date">
@@ -108,6 +109,7 @@ pio run --target upload
 
 ## Проект открыт для Pull-реквестов
 ## Сделано с любовью ❤
+
 
 
 
