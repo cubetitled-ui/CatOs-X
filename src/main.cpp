@@ -23,6 +23,7 @@
 #include "flappy_bird.h"    // птичка
 #include "arkanoid.h"       // арнакоид
 #include "space_invaders.h"
+#include "games.h"
 // ------------------
 bool alert_f;               // показ ошибки в вебморде
 bool wifiConnected = false; // для wifi морды
@@ -4395,7 +4396,7 @@ void mini_apps_menu() {
       if(current_page == 0) {
         switch(mini_apps_ptr) {
           case 0: dice_random(); break;
-          case 1: snake(); break;
+          case 1: snakeGame(); break;
           case 2: PlayDinosaurGame(); break;
           case 3: start_tetris_r(); break;
           case 4: pongGame(); break;
