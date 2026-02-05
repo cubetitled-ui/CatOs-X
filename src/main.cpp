@@ -5,6 +5,45 @@
 #define CS 5
 
 #define OLED_SPI_SPEED 8000000ul // скорость(макс)
+
+// Константы для игр
+#define GAME_SPEED 200
+#define ITEMS 6
+#define VISIBLE_ITEMS 6
+#define PADDLE_HEIGHT 8
+#define PADDLE_WIDTH 2
+#define BALL_SIZE 2
+#define PADDLE_WIDTH_ark 20
+#define PADDLE_HEIGHT_ark 4
+#define BALL_SIZE_ark 3
+#define BRICK_ROWS 4
+#define BRICK_COLS 8
+#define BRICK_WIDTH 14
+#define BRICK_HEIGHT 4
+#define BRICK_SPACING 2
+#define BIRD_START_X 10
+#define PIPE_SPACING 60
+#define PIPE_WIDTH 20
+#define PIPE_GAP 30
+#define JUMP_FORCE -3.0f
+#define GRAVITY 0.3f
+#define PLAYER_WIDTH 8
+#define PLAYER_HEIGHT 6
+#define BULLET_HEIGHT 4
+#define ENEMY_WIDTH 8
+#define ENEMY_HEIGHT 6
+#define DISPLAY_WIDTH 128
+#define DISPLAY_HEIGHT 64
+#define MAX_STARS 20
+#define MAX_BULLETS 5
+#define MAX_ENEMY_BULLETS 3
+#define MAX_ENEMIES 10
+#define GAMEMODE_CLASSIC 0
+#define GAMEMODE_EXTREME 1
+#define INVADERS_STATE_MENU 0
+#define INVADERS_STATE_DIFFICULTY 1
+#define INVADERS_STATE_PLAYING 2
+#define INVADERS_STATE_GAMEOVER 3
 //------------------------
 // библиотеки и переменные
 #include <Arduino.h>        // стандартная либа
@@ -25,6 +64,42 @@
 #include "space_invaders.h"
 #include "games.h"
 // ------------------
+// Глобальные переменные для меню
+int pointer = 0;
+int top_item = 0;
+
+// Переменные для игр
+int score1 = 0, score2 = 0;
+int player1Y = 32, player2Y = 32;
+int ballX = 64, ballY = 32;
+int ballSpeedX = 1, ballSpeedY = 1;
+float birdY = 32, birdVelocity = 0;
+int score = 0;
+bool gameOver = false;
+int pipePositions[3] = {128, 188, 248};
+int pipeHeights[3] = {20, 30, 25};
+bool pipePassed[3] = {false, false, false};
+int paddleX = 54, ballX_ark = 64, ballY_ark = 50, ballSpeedX_ark = 1, ballSpeedY_ark = -1;
+int lives = 5, score_ark = 0;
+bool gameRunning = true;
+bool bricks[4][8];
+float playerX = 1.5f, playerY = 1.5f, playerAngle = 0.0f;
+
+// Переменные для тетриса
+byte button_rev = 4;
+byte height = 0;
+byte pos = 0;
+byte fig = 0;
+byte ang = 0;
+byte color = 2;
+int lineCleanCounter = 0;
+bool loadingFlag = true;
+bool down_flag = false;
+int prev_pos = 0;
+int prev_ang = 0;
+int prev_height = 0;
+uint8_t oledbuf[100] = {0}; // буфер для тетриса
+
 bool alert_f;               // показ ошибки в вебморде
 bool wifiConnected = false; // для wifi морды
 // пины
@@ -855,95 +930,6 @@ void setup() {
     setCpuFrequencyMhz(80);
 }
 
-void snake() {
-  // Настройки змейки
-  const int BLOCK_SIZE = 4; // Размер блока
-  const int MOVE_DELAY = 200; // Задержка движения
-
-  // Переменные
-  int snakeLength = 4;
-  int snakeX[128];
-  int snakeY[64];
-  int foodX = rnd.get(2, 30) * BLOCK_SIZE;
-  int foodY = rnd.get(2, 14) * BLOCK_SIZE;
-  int headX = 20;
-  int headY = 20;
-  int dirX = BLOCK_SIZE;
-  int dirY = 0;
-  
-  uint32_t snakeMoveTmr;
-
-  // Инициализация змейки
-  for (int i = 0; i < snakeLength; i++) {
-    snakeX[i] = headX - i * BLOCK_SIZE;
-    snakeY[i] = headY;
-  }
-
-  while (true) {
-    buttons_tick();
-    // Управление
-    if (left.isClick() && dirX == 0) {
-      dirX = -BLOCK_SIZE;
-      dirY = 0;
-    } else if (right.isClick() && dirX == 0) {
-      dirX = BLOCK_SIZE;
-      dirY = 0;
-    } else if (down.isClick() && dirY == 0) {
-      dirX = 0;
-      dirY = BLOCK_SIZE;
-    } else if (up.isClick() && dirY == 0) {
-      dirX = 0;
-      dirY = -BLOCK_SIZE;
-    }
-
-    // Движение
-    if (millis() - snakeMoveTmr >= MOVE_DELAY) {
-      snakeMoveTmr = millis();
-      
-      // Обновление хвоста
-      for (int i = snakeLength; i > 0; i--) {
-        snakeX[i] = snakeX[i - 1];
-        snakeY[i] = snakeY[i - 1];
-      }
-      
-      // Обновление головы
-      headX += dirX;
-      headY += dirY;
-      snakeX[0] = headX;
-      snakeY[0] = headY;
-
-      // Проверка на съедение
-      if (headX == foodX && headY == foodY) {
-        snakeLength++;
-        foodX = rnd.get(2, 30) * BLOCK_SIZE;
-        foodY = rnd.get(2, 14) * BLOCK_SIZE;
-      }
-      
-      // Отрисовка в буфер
-      oled.clear(); // Очищаем экран перед отрисовкой
-
-      // Змейка
-      for (int i = 0; i < snakeLength; i++) {
-        oled.rect(snakeX[i], snakeY[i], 
-                 snakeX[i] + BLOCK_SIZE - 1, 
-                 snakeY[i] + BLOCK_SIZE - 1);
-      }
-      
-      // Еда
-      oled.rect(foodX, foodY, 
-               foodX + BLOCK_SIZE - 1, 
-               foodY + BLOCK_SIZE - 1);
-      
-      oled.update(); // Обновляем экран только один раз за итерацию
-    }
-
-    // Выход
-    if (ok.isHold()){
-      exit(false);
-      return;
-    }  
-}
-}
 
 // Space Invaders Game by VoltimeterXPayalnuk
 
