@@ -42,7 +42,7 @@
 > [!WARNING]
 > При прошивке или зарядке устройства отключите питание от батареи с помощью переключателя.
 ## Создание изображений и загрузка
-1. Запустите [imageProcessor.exe](https://github.com/AlexGyver/imageProcessor) (установите java)
+1. Запустите [Сайт](https://alexgyver.github.io/Bitmaper2/index/)) (установите java)
 
 ![IMG1](assets/img1.png)
 
@@ -109,6 +109,7 @@ pio run --target upload
 
 ## Проект открыт для Pull-реквестов
 ## Сделано с любовью ❤
+
 
 
 
