@@ -1,5 +1,5 @@
-# CatOS Прошивка игровой консоли
-| *> CatOs <* | [CatOs Lite](https://github.com/CatDevCode/CatOs_Lite/) |
+# CatOS X Прошивка игровой консоли
+| *> CatOs X <* | [CatOs Lite](https://github.com/CatDevCode/CatOs_Lite/) |
 | --- | --- |
 
 ![LOGO](assets/logo.jpg)
@@ -21,8 +21,6 @@
 - 5 кнопок управления
 - Литий-ионный аккумулятор
 
-## [МОЖНО ПРОШИТЬ ESP32 НА САЙТЕ РАЗРАБОТЧИКА ПРОШИВКИ](https://catdevcode.github.io/CatOs_webflasher/)
-
 ## Простой для DIY
 1. Схема подключения
 
@@ -42,7 +40,7 @@
 > [!WARNING]
 > При прошивке или зарядке устройства отключите питание от батареи с помощью переключателя.
 ## Создание изображений и загрузка
-1. Запустите [Сайт](https://alexgyver.github.io/Bitmaper2/index/)) (установите java)
+1. Запустите [Сайт](https://alexgyver.github.io/Bitmaper2/index/) (веб версия инструкция не актуальна)
 
 ![IMG1](assets/img1.png)
 
@@ -68,7 +66,7 @@
 - [GyverTimer(Старое, но для совместимости)](https://github.com/GyverLibs/GyverTimer)
 - [Settings](https://github.com/GyverLibs/Settings)
 - [Random16](https://github.com/GyverLibs/Random16)
-- PS. Все библиотеки от гайвера
+- PS. Все библиотеки от гайвера скоро появятся новые
 
 ## Установка
 1. Установите [PlatformIO](https://platformio.org/)
@@ -109,8 +107,6 @@ pio run --target upload
 
 ## Проект открыт для Pull-реквестов
 ## Сделано с любовью ❤
-
-
 
 
 
