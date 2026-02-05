@@ -21,7 +21,7 @@
 - 5 кнопок управления
 - Литий-ионный аккумулятор
 
-## [МОЖНО ПРОШИТЬ ESP32 НА МОЁМ САЙТЕ](https://catdevcode.github.io/CatOs_webflasher/)
+## [МОЖНО ПРОШИТЬ ESP32 НА САЙТЕ РАЗРАБОТЧИКА ПРОШИВКИ](https://catdevcode.github.io/CatOs_webflasher/)
 
 ## Простой для DIY
 1. Схема подключения
@@ -109,6 +109,7 @@ pio run --target upload
 
 ## Проект открыт для Pull-реквестов
 ## Сделано с любовью ❤
+
 
 
 
