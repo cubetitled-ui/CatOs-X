@@ -99,7 +99,7 @@ pio run --target upload
 - Спасибо HakerShark за иконки.
 ## Star History
 
-<a href="https://www.star-history.com/#CatDevCode/CatOs&Date">
+<a href="https://www.star-history.com/#cubetitled-ui/CatOs-X&Date">
  <picture>
    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=CatDevCode/CatOs&type=Date&theme=dark" />
    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=CatDevCode/CatOs&type=Date" />
